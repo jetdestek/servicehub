@@ -3,8 +3,9 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ExclamationTriangleIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
+import { Suspense } from 'react'
 
-export default function AuthError() {
+function AuthErrorContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
@@ -77,5 +78,13 @@ export default function AuthError() {
         </div>
       </motion.div>
     </div>
+  )
+}
+
+export default function AuthError() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthErrorContent />
+    </Suspense>
   )
 }

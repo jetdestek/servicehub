@@ -1,13 +1,13 @@
-// Prisma Schema für lokale Entwicklung mit SQLite
-// Optimiert für SQLite für einfache lokale Entwicklung
+// Prisma Schema for Production with PostgreSQL
+// Optimized for PostgreSQL for production deployment
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {

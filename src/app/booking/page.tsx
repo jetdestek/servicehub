@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { 
@@ -35,7 +35,7 @@ interface Service {
   createdAt: string
 }
 
-export default function BookingPage() {
+function BookingPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const serviceId = searchParams.get('serviceId')
@@ -432,5 +432,13 @@ export default function BookingPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BookingPageContent />
+    </Suspense>
   )
 }

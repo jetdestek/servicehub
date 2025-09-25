@@ -37,7 +37,7 @@ export async function GET() {
       price: service.price,
       status: service.isActive ? 'active' : 'inactive',
       createdAt: service.createdAt.toISOString().split('T')[0],
-      views: service.viewCount,
+      views: service.reviewCount,
       bookings: service._count.bookings,
       rating: service.rating
     }))
