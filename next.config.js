@@ -3,12 +3,12 @@ const nextConfig = {
   // Production optimized Next.js configuration
   reactStrictMode: true,
   
-  // TypeScript ve ESLint hatalarını production'da ignore et
+  // TypeScript ve ESLint ayarları - Geçici olarak devre dışı
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: true, // Geçici olarak TypeScript hatalarını yoksay
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: true, // Geçici olarak ESLint'i devre dışı bırak
   },
   
   // Images
@@ -29,6 +29,12 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'localhost',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'jetdestek.com',
         port: '',
         pathname: '/**',
       }

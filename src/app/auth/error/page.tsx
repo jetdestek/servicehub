@@ -83,7 +83,7 @@ function AuthErrorContent() {
 
 export default function AuthError() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
       <AuthErrorContent />
     </Suspense>
   )
