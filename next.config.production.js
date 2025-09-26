@@ -1,94 +1,102 @@
-import type { NextConfig } from 'next'
-
-// Next.js Configuration für Namecheap Stellar Business Hosting
-const nextConfig: NextConfig = {
-  // Output configuration für statische Generierung
-  output: 'export',
-  trailingSlash: true,
-  images: {
-    unoptimized: true, // Namecheap unterstützt keine Next.js Image Optimization
-  },
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Production optimized Next.js configuration
+  reactStrictMode: true,
   
-  // Disable server-side features for static export
-  experimental: {
-    esmExternals: false,
-  },
-  
-  // Disable WebAssembly to prevent memory issues
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      }
-    }
-
-    // Disable WebAssembly
-    config.experiments = {
-      ...config.experiments,
-      asyncWebAssembly: false,
-      syncWebAssembly: false,
-    }
-
-    return config
-  },
-  
-  // Disable ESLint during build for static export
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  
-  // Disable TypeScript checking during build
+  // TypeScript ve ESLint ayarları - Production için aktif
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false, // Production'da TypeScript hatalarını kontrol et
   },
+  eslint: {
+    ignoreDuringBuilds: false, // Production'da ESLint'i aktif et
+  },
+  
+  // Performance optimizations
+  swcMinify: true,
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@heroicons/react'],
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+  },
+  
+  // Images optimization
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'jetdestek.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.amazonaws.com',
+        port: '',
+        pathname: '/**',
+      }
+    ],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 31536000, // 1 year
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+  
+  // External packages
+  serverExternalPackages: ['@prisma/client', 'sharp'],
   
   // Security configurations
   poweredByHeader: false,
   compress: true,
   
-  // Static file serving
-  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
-  
-  // Security headers (werden in .htaccess implementiert)
+  // Content Security Policy
   async headers() {
     return [
       {
         source: '/(.*)',
         headers: [
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'nonce-r8i8c9wxf358z99bbon9x' https://js.stripe.com https://maps.googleapis.com; style-src 'self' 'nonce-r8i8c9wxf358z99bbon9x' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https://js.stripe.com;"
           },
           {
             key: 'X-Frame-Options',
-            value: 'DENY',
+            value: 'DENY'
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
           },
           {
             key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
+            value: 'strict-origin-when-cross-origin'
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
-          },
-        ],
-      },
+            value: 'camera=(), microphone=(), geolocation=()'
+          }
+        ]
+      }
     ]
   },
-
+  
   // Environment variables
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
 
-  // Redirects für SEO
+  // Redirects
   async redirects() {
     return [
       {
@@ -109,7 +117,7 @@ const nextConfig: NextConfig = {
     ]
   },
 
-  // Rewrites für API routes
+  // Rewrites for API routes
   async rewrites() {
     return [
       {
@@ -119,9 +127,8 @@ const nextConfig: NextConfig = {
     ]
   },
 
-  // Webpack configuration für Namecheap
-  webpack: (config, { isServer }) => {
-    // Optimierungen für Namecheap Hosting
+  // Webpack configuration
+  webpack: (config, { isServer, webpack }) => {
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -131,29 +138,25 @@ const nextConfig: NextConfig = {
       }
     }
 
-    // Memory optimizations
-    config.optimization = {
-      ...config.optimization,
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          default: {
-            minChunks: 2,
-            priority: -20,
-            reuseExistingChunk: true,
-          },
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            priority: -10,
-            chunks: 'all',
-          },
-        },
-      },
-    }
+    // Optimize bundle size
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^\.\/locale$/,
+        contextRegExp: /moment$/,
+      })
+    )
 
     return config
   },
+  
+  // Output configuration
+  output: 'standalone',
+  
+  // Trailing slash
+  trailingSlash: false,
+  
+  // Base path (if needed for subdirectory deployment)
+  // basePath: '/servicehub',
 }
 
-export default nextConfig
+module.exports = nextConfig
